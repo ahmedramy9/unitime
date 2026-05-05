@@ -1944,6 +1944,9 @@ public interface CourseMessages extends Messages {
 	
 	@DefaultMessage("No records matching the search criteria were found.")
 	String errorNoRecords();
+
+	@DefaultMessage("Found {0} classes")
+	String foundClasses();
 	
 	@DefaultMessage("Instructional Offerings")
 	String labelInstructionalOfferings();

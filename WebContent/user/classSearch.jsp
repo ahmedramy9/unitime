@@ -338,7 +338,12 @@
 			</TD></TR>
 		</s:if>
 	</TABLE>
-	<s:if test="showTable == true">
+	<s:if test="showTable == true && #request.resultCount != null">
+			<div style="margin: 10px 0; padding: 8px; background-color: #f0f0f0; border-radius: 4px;">
+				<strong><loc:message name="foundClasses"><s:param value="%{#request.resultCount}"/></loc:message></strong>
+			</div>
+		</s:if>
+		<s:if test="showTable == true">
 		<s:property value="%{printTable()}" escapeHtml="false"/>
 	</s:if>
 	<s:if test="#request.hash != null">
