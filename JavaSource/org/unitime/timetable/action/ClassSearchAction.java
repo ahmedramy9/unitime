@@ -197,6 +197,7 @@ public class ClassSearchAction extends UniTimeAction<ClassListForm> {
 		    	
 				form.setClasses(ClassSearchAction.getClasses(form, WebSolver.getClassAssignmentProxy(request.getSession())));
 				Collection classes = form.getClasses();
+request.setAttribute("resultCount", classes.size());
 				if (classes.isEmpty()) {
 					addFieldError("searchResult", MSG.errorNoRecords());
 					setShowTable(false);
@@ -302,6 +303,7 @@ public class ClassSearchAction extends UniTimeAction<ClassListForm> {
     	
     	form.setClasses(getClasses(form, WebSolver.getClassAssignmentProxy(request.getSession())));
     	Collection classes = form.getClasses();
+request.setAttribute("resultCount", classes.size());
     	if (classes.isEmpty()) {
 			addFieldError("searchResult", MSG.errorNoRecords());
 			setShowTable(false);
