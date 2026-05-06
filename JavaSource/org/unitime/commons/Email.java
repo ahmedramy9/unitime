@@ -87,8 +87,15 @@ public abstract class Email {
 	}
 
 	public void addAttachment(DataSource source) throws Exception {
-		addAttachment(source.getName(), new DataHandler(source));
-	}
+    if (source == null) {
+        throw new IllegalArgumentException("DataSource cannot be null");
+    }
+
+    String name = source.getName();
+    DataHandler dataHandler = new DataHandler(source);
+
+    addAttachment(name, dataHandler);
+}
 
 	public abstract void send() throws Exception;
 
