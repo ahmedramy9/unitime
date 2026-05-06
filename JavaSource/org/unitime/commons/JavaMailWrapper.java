@@ -164,10 +164,15 @@ public class JavaMailWrapper extends Email {
 	}
 	
 	@Override
-	public void setInReplyTo(String messageId) throws MessagingException {
-		if (messageId != null)
-			iMail.setHeader("In-Reply-To", messageId);
-	}
+public void setInReplyTo(String messageId) throws MessagingException {
+    if (messageId != null) {
+        applyHeader(messageId);
+    }
+}
+
+private void applyHeader(String messageId) throws MessagingException {
+    iMail.setHeader("In-Reply-To", messageId);
+}
 	
 	@Override
 	public String getMessageId() throws MessagingException {
