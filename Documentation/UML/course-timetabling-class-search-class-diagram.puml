@@ -1,0 +1,234 @@
+@startuml
+title Course Timetabling — Class Search subsystem class diagram\n(reverse-engineered; <<new>> elements added by SearchResultCounter)
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+skinparam ArrowColor #3D405B
+skinparam ClassBorderColor #3D405B
+skinparam ClassBackgroundColor #F7F7F2
+skinparam InterfaceBackgroundColor #EAF4F4
+skinparam StereotypeBorderColor #888888
+
+' ── Action layer ─────────────────────────────────────────────────────────────
+
+package "org.unitime.timetable.action" {
+
+  abstract class UniTimeAction<T> <<Struts2 ActionSupport>> {
+    #sessionContext : SessionContext
+    #request : HttpServletRequest
+    #response : HttpServletResponse
+    #form : T
+    +execute() : String
+    +getRequest() : HttpServletRequest
+    +getResponse() : HttpServletResponse
+  }
+
+  class ClassSearchAction <<Struts2 @Action("classSearch")>> {
+    -{static} MSG : CourseMessages
+    -doit : String
+    -subjectAreaIds : String[]
+    -courseNbr : String
+    -showTable : boolean
+    +execute() : String
+    +searchClasses() : String
+    +exportPdf() : String
+    +exportCsv() : String
+    +performAction(action : String) : String
+    +printTable() : String
+    +{static} getClasses(form : ClassListFormInterface,\n  proxy : ClassAssignmentProxy) : Set
+    +{static} setupGeneralFormFilters(ctx : SessionContext,\n  form : ClassListFormInterface) : void
+    +{static} setupClassListSpecificFormFilters(ctx : SessionContext,\n  form : ClassListForm) : void
+    /' <<new>> SearchResultCounter behaviour:
+       request.setAttribute("resultCount", classes.size())
+       called in execute() and performAction() '/
+  }
+}
+
+' ── Form layer ───────────────────────────────────────────────────────────────
+
+package "org.unitime.timetable.form" {
+
+  interface InstructionalOfferingListFormInterface {
+    +getSubjectAreas() : Collection<SubjectArea>
+    +getClasses() : Collection
+    +setClasses(classes : Collection) : void
+  }
+
+  interface ClassListFormInterface {
+    +getSubjectAreaIds() : String[]
+    +getCourseNbr() : String
+    +getSortBy() : String
+    +getFilterManager() : String
+    +getFilterAssignedRoom() : String
+    +getFilterInstructor() : String
+    +getFilterIType() : String
+    +getFilterDayCode() : int
+    +getFilterStartSlot() : int
+    +getFilterLength() : int
+    +getSortByKeepSubparts() : boolean
+    +getShowCrossListedClasses() : boolean
+    +getIncludeCancelledClasses() : boolean
+    +getFilterNeedInstructor() : boolean
+  }
+
+  class ClassListForm <<Struts2 form bean>> {
+    -subjectAreaIds : String[]
+    -courseNbr : String
+    -sortBy : String
+    -filterInstructor : String
+    -filterAssignedRoom : String
+    -filterManager : String
+    -filterIType : String
+    -filterDayCode : int
+    -filterStartSlot : int
+    -filterLength : int
+    -sortByKeepSubparts : boolean
+    -showCrossListedClasses : boolean
+    -includeCancelledClasses : boolean
+    +validate(action : ActionSupport) : void
+  }
+}
+
+' ── Localization ─────────────────────────────────────────────────────────────
+
+package "org.unitime.localization.messages" {
+
+  interface CourseMessages <<GWT Messages>> {
+    +actionSearchClasses() : String
+    +actionExportPdf() : String
+    +actionExportCsv() : String
+    +errorNoRecords() : String
+    +backClasses(name : String) : String
+    +foundClasses() : String
+    /' <<new>> Added by SearchResultCounter.
+       Default: "Found {0} classes" '/
+  }
+}
+
+' ── Web utilities ─────────────────────────────────────────────────────────────
+
+package "org.unitime.timetable.webutil" {
+
+  class WebClassListTableBuilder {
+    +htmlTableForClasses(context : SessionContext,\n  classAssignment : ClassAssignmentProxy,\n  examAssignment : ExamAssignmentProxy,\n  form : ClassListForm,\n  out : JspWriter,\n  backType : String,\n  backId : String) : void
+  }
+
+  class PdfClassListTableBuilder {
+    +pdfTableForClasses(...) : void
+  }
+
+  class CsvClassListTableBuilder {
+    +csvTableForClasses(...) : void
+  }
+}
+
+' ── Security ─────────────────────────────────────────────────────────────────
+
+package "org.unitime.timetable.security" {
+
+  interface SessionContext {
+    +checkPermission(right : Right) : void
+    +hasPermission(right : Right) : boolean
+    +getUser() : UserContext
+    +getAttribute(attr : SessionAttribute) : Object
+    +setAttribute(attr : SessionAttribute, value : Object) : void
+  }
+}
+
+' ── Domain model ─────────────────────────────────────────────────────────────
+
+package "org.unitime.timetable.model" {
+
+  class Department <<@Entity>> {
+    +uniqueId : Long
+    +abbreviation : String
+    +name : String
+  }
+
+  class SubjectArea <<@Entity>> {
+    +uniqueId : Long
+    +subjectAreaAbbreviation : String
+    +title : String
+  }
+
+  class CourseOffering <<@Entity>> {
+    +uniqueId : Long
+    +courseNbr : String
+    +title : String
+    +isControl : Boolean
+  }
+
+  class InstructionalOffering <<@Entity>> {
+    +uniqueId : Long
+    +notOffered : Boolean
+    +byReservationOnly : Boolean
+  }
+
+  class InstrOfferingConfig <<@Entity>> {
+    +uniqueId : Long
+    +limit : Integer
+    +unlimitedEnrollment : Boolean
+  }
+
+  class SchedulingSubpart <<@Entity>> {
+    +uniqueId : Long
+    +minutesPerWk : Integer
+    +studentAllowOverlap : Boolean
+  }
+
+  class Class_ <<@Entity>> {
+    +uniqueId : Long
+    +expectedCapacity : Integer
+    +cancelled : Boolean
+    +enabledForStudentScheduling : Boolean
+  }
+}
+
+' ── Relationships ─────────────────────────────────────────────────────────────
+
+UniTimeAction <|-- ClassSearchAction
+
+InstructionalOfferingListFormInterface <|-- ClassListFormInterface
+ClassListFormInterface <|.. ClassListForm
+
+ClassSearchAction --> ClassListForm : form
+ClassSearchAction ..> CourseMessages : MSG (static)
+ClassSearchAction ..> SessionContext : sessionContext
+ClassSearchAction ..> WebClassListTableBuilder : printTable()
+ClassSearchAction ..> PdfClassListTableBuilder : exportPdf()
+ClassSearchAction ..> CsvClassListTableBuilder : exportCsv()
+ClassSearchAction ..> Class_ : getClasses() returns
+ClassSearchAction ..> CourseOffering : getClasses() returns
+
+Department "1" --> "0..*" SubjectArea : subjectAreas
+SubjectArea "1" --> "0..*" CourseOffering : courseOfferings
+CourseOffering "0..*" --> "1" InstructionalOffering : instructionalOffering
+InstructionalOffering "1" --> "0..*" InstrOfferingConfig : instrOfferingConfigs
+InstrOfferingConfig "1" --> "0..*" SchedulingSubpart : schedulingSubparts
+SchedulingSubpart "1" --> "0..*" Class_ : classes
+
+note bottom of ClassSearchAction
+  SearchResultCounter (branch SearchResultCounter):
+  After getClasses() returns, both execute() and
+  performAction() now call:
+    request.setAttribute("resultCount", classes.size())
+  classSearch.jsp reads this attribute and displays
+  "Found N classes" using CourseMessages.foundClasses().
+end note
+
+note bottom of CourseMessages
+  <<new>> foundClasses() added by SearchResultCounter.
+  @DefaultMessage("Found {0} classes")
+  Used in classSearch.jsp via <loc:message> tag.
+end note
+
+note bottom
+  Reverse-engineered from ClassSearchAction.java, ClassListForm.java,
+  ClassListFormInterface.java, CourseMessages.java, classSearch.jsp,
+  and Hibernate entity annotations in model.base.* classes.
+  Full system context: see system-component-diagram.puml.
+end note
+
+@enduml

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980" role="img" aria-labelledby="title desc">
+  <title id="title">Student Scheduling RPC/report request sequence</title>
+  <desc id="desc">A UML sequence diagram showing a GWT student scheduling request passing through filters, RPC dispatch, sectioning backends, permission checks, online sectioning server or batch solver, and database access.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3d405b"/>
+    </marker>
+    <style>
+      .title { font: 700 28px Arial, Helvetica, sans-serif; fill: #272932; }
+      .subtitle { font: 13px Arial, Helvetica, sans-serif; fill: #5b5f6a; }
+      .participant { fill: #f7f7f2; stroke: #3d405b; stroke-width: 1.35; rx: 6; }
+      .participant2 { fill: #e8f1f2; stroke: #3d405b; stroke-width: 1.35; rx: 6; }
+      .participant3 { fill: #fff3d8; stroke: #3d405b; stroke-width: 1.35; rx: 6; }
+      .name { font: 700 13px Arial, Helvetica, sans-serif; fill: #272932; }
+      .small { font: 11px Arial, Helvetica, sans-serif; fill: #5b5f6a; }
+      .msg { font: 12px Arial, Helvetica, sans-serif; fill: #272932; }
+      .life { stroke: #a7a9b0; stroke-width: 1.1; stroke-dasharray: 6 5; }
+      .arrow { stroke: #3d405b; stroke-width: 1.35; fill: none; marker-end: url(#arrow); }
+      .return { stroke: #686d7a; stroke-width: 1.2; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrow); }
+      .act { fill: #f7e9ef; stroke: #3d405b; stroke-width: 1; rx: 3; }
+      .alt { fill: #fbfbf8; stroke: #9a9a8f; stroke-width: 1.2; rx: 8; }
+      .altlabel { font: 700 12px Arial, Helvetica, sans-serif; fill: #272932; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="980" fill="#ffffff"/>
+  <text class="title" x="44" y="48">Student Scheduling RPC / Report Sequence</text>
+  <text class="subtitle" x="44" y="72">Reverse-engineered from web.xml mappings/filters, GwtDispatcherServlet, GwtRpcServlet, SectioningServlet, SectioningReportsBackend, OnlineSectioningServer, and solver service usage.</text>
+
+  <g id="participants">
+    <rect class="participant" x="44" y="112" width="132" height="64"/>
+    <text class="name" x="110" y="137" text-anchor="middle">User</text>
+    <text class="small" x="110" y="158" text-anchor="middle">student/advisor</text>
+
+    <rect class="participant" x="214" y="112" width="152" height="64"/>
+    <text class="name" x="290" y="137" text-anchor="middle">GWT page</text>
+    <text class="small" x="290" y="158" text-anchor="middle">gwt.client.sectioning</text>
+
+    <rect class="participant2" x="414" y="112" width="152" height="64"/>
+    <text class="name" x="490" y="137" text-anchor="middle">Servlet filters</text>
+    <text class="small" x="490" y="158" text-anchor="middle">web.xml chain</text>
+
+    <rect class="participant2" x="614" y="112" width="174" height="64"/>
+    <text class="name" x="701" y="137" text-anchor="middle">GWT RPC servlet</text>
+    <text class="small" x="701" y="158" text-anchor="middle">dispatcher / command RPC</text>
+
+    <rect class="participant3" x="836" y="112" width="190" height="64"/>
+    <text class="name" x="931" y="137" text-anchor="middle">Sectioning backend</text>
+    <text class="small" x="931" y="158" text-anchor="middle">Servlet or report backend</text>
+
+    <rect class="participant2" x="1074" y="112" width="156" height="64"/>
+    <text class="name" x="1152" y="137" text-anchor="middle">SessionContext</text>
+    <text class="small" x="1152" y="158" text-anchor="middle">permissions/user</text>
+
+    <rect class="participant3" x="1268" y="112" width="176" height="64"/>
+    <text class="name" x="1356" y="137" text-anchor="middle">Online / Solver / DB</text>
+    <text class="small" x="1356" y="158" text-anchor="middle">sectioning server, solver, DAO</text>
+  </g>
+
+  <line class="life" x1="110" y1="176" x2="110" y2="914"/>
+  <line class="life" x1="290" y1="176" x2="290" y2="914"/>
+  <line class="life" x1="490" y1="176" x2="490" y2="914"/>
+  <line class="life" x1="701" y1="176" x2="701" y2="914"/>
+  <line class="life" x1="931" y1="176" x2="931" y2="914"/>
+  <line class="life" x1="1152" y1="176" x2="1152" y2="914"/>
+  <line class="life" x1="1356" y1="176" x2="1356" y2="914"/>
+
+  <rect class="act" x="284" y="224" width="12" height="574"/>
+  <rect class="act" x="484" y="260" width="12" height="500"/>
+  <rect class="act" x="695" y="326" width="12" height="398"/>
+  <rect class="act" x="925" y="380" width="12" height="290"/>
+  <rect class="act" x="1146" y="410" width="12" height="68"/>
+  <rect class="act" x="1350" y="512" width="12" height="112"/>
+
+  <path class="arrow" d="M 110 224 L 284 224"/>
+  <text class="msg" x="197" y="216" text-anchor="middle">choose courses / run report</text>
+
+  <path class="arrow" d="M 296 260 L 484 260"/>
+  <text class="msg" x="390" y="252" text-anchor="middle">HTTP RPC request</text>
+
+  <path class="arrow" d="M 496 300 L 1152 300"/>
+  <text class="msg" x="824" y="292" text-anchor="middle">authenticate, authorize, open Hibernate session</text>
+
+  <path class="arrow" d="M 496 326 L 695 326"/>
+  <text class="msg" x="595" y="318" text-anchor="middle">dispatch *.gwt or /unitime/gwt.rpc</text>
+
+  <path class="arrow" d="M 707 380 L 925 380"/>
+  <text class="msg" x="816" y="372" text-anchor="middle">invoke service method / execute(request)</text>
+
+  <path class="arrow" d="M 937 410 L 1146 410"/>
+  <text class="msg" x="1042" y="402" text-anchor="middle">check StudentScheduling* rights</text>
+  <path class="return" d="M 1146 478 L 937 478"/>
+  <text class="msg" x="1042" y="470" text-anchor="middle">allowed user/session context</text>
+
+  <rect class="alt" x="820" y="510" width="600" height="158"/>
+  <text class="altlabel" x="840" y="534">alt online sectioning</text>
+  <path class="arrow" d="M 937 562 L 1350 562"/>
+  <text class="msg" x="1144" y="554" text-anchor="middle">createAction(...) and execute(action, user)</text>
+  <path class="arrow" d="M 1356 596 C 1320 596 1320 620 1350 620"/>
+  <text class="msg" x="1240" y="614" text-anchor="middle">load/update X model, DAO, DB</text>
+  <path class="return" d="M 1350 646 L 937 646"/>
+  <text class="msg" x="1144" y="638" text-anchor="middle">DTO / CSV / assignment result</text>
+
+  <line x1="820" y1="690" x2="1420" y2="690" stroke="#9a9a8f" stroke-dasharray="6 5"/>
+  <text class="altlabel" x="840" y="714">else batch report</text>
+  <path class="arrow" d="M 937 744 L 1350 744"/>
+  <text class="msg" x="1144" y="736" text-anchor="middle">studentSectioningSolverService.getSolver().getReport()</text>
+  <path class="return" d="M 1350 782 L 937 782"/>
+  <text class="msg" x="1144" y="774" text-anchor="middle">CSV report from StudentSolverProxy</text>
+
+  <path class="return" d="M 925 822 L 707 822"/>
+  <text class="msg" x="816" y="814" text-anchor="middle">GWT DTO / GwtRpcResponse</text>
+
+  <path class="return" d="M 695 852 L 496 852"/>
+  <text class="msg" x="596" y="844" text-anchor="middle">encoded RPC response</text>
+
+  <path class="return" d="M 484 882 L 296 882"/>
+  <text class="msg" x="390" y="874" text-anchor="middle">HTTP response</text>
+
+  <path class="return" d="M 284 912 L 110 912"/>
+  <text class="msg" x="197" y="904" text-anchor="middle">updated schedule / report grid</text>
+</svg>

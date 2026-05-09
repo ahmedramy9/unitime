@@ -1,0 +1,84 @@
+@startuml
+title UniTime reverse-engineered system component diagram
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam BackgroundColor #FFFFFF
+skinparam ArrowColor #3D405B
+skinparam ComponentBorderColor #3D405B
+skinparam ComponentBackgroundColor #F7F7F2
+skinparam DatabaseBackgroundColor #EAF4F4
+skinparam NodeBackgroundColor #F4F1DE
+
+actor "Browser user" as User
+
+node "Jakarta Servlet container\n(WebContent/WEB-INF/web.xml)" as Container {
+  component "JSP + Tiles views\nWebContent/*.jsp\nWebContent/WEB-INF/tiles.xml" as JSP
+  component "Struts 2 actions\norg.unitime.timetable.action" as Struts
+  component "GWT UI + RPC\norg.unitime.timetable.gwt\n*.gwt, /unitime/gwt.rpc" as GWT
+  component "REST/XML API\nApiServlet\norg.unitime.timetable.api" as API
+  component "Filter chain\nHibSessionFilter\nSpring Security\nPageAccessFilter\nQueryLogFilter" as Filters
+  component "Spring application context\ncomponent-scan org.unitime\nsecurityContext.xml" as Spring
+}
+
+package "Application subsystems (JavaSource/org/unitime/timetable)" as Subsystems {
+  component "Course Timetabling\nserver.courses\nsolver.course\nmodel offerings/classes" as Course
+  component "Examination Timetabling\nserver.exams\nsolver.exam\nmodel exams" as Exam
+  component "Event Management\nserver.rooms/events\nmodel events/meetings" as Events
+  component "Student Scheduling\nserver.sectioning\nonlinesectioning\nsolver.studentsct" as Sectioning
+  component "Instructor Scheduling\nserver.instructor\nsolver.instructor" as Instructor
+  component "Reports and Export\nreports\nexport" as Reports
+}
+
+component "Security and authorization\nSessionContext\nPermissionCheck\nRight enum" as Security
+component "Hibernate model and DAO\nmodel, model.dao\n*.hbm.xml, annotations" as ORM
+database "Relational database\nOracle/PostgreSQL scripts\nDocumentation/Database" as DB
+component "CPSolver engine\norg.cpsolver dependency\ncpsolver-*.jar" as CPSolver
+cloud "External SIS / integrations\ninterfaces\ndataexchange\nXML DTDs" as External
+
+User --> JSP : HTML pages
+User --> GWT : GWT pages and RPC
+User --> API : API calls
+Filters --> JSP
+Filters --> Struts
+Filters --> GWT
+Filters --> API
+Struts --> Spring
+GWT --> Spring
+API --> Spring
+Spring --> Security
+Spring --> Course
+Spring --> Exam
+Spring --> Events
+Spring --> Sectioning
+Spring --> Instructor
+Course --> ORM
+Exam --> ORM
+Events --> ORM
+Sectioning --> ORM
+Instructor --> ORM
+Reports --> ORM
+ORM --> DB
+Course --> CPSolver
+Exam --> CPSolver
+Sectioning --> CPSolver
+Instructor --> CPSolver
+External --> Course : imports/exports
+External --> Sectioning : student/course data
+Reports --> JSP : downloadable output
+Reports --> GWT : report grids
+
+note bottom of Sectioning
+Reverse-engineered subsystem shown in more detail
+in student-scheduling-subsystem-class-diagram.puml.
+end note
+
+note bottom of Course
+Reverse-engineered Class Search subsystem shown in more detail
+in course-timetabling-class-search-class-diagram.puml.
+Request flow shown in class-search-sequence-diagram.puml.
+end note
+
+@enduml

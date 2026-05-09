@@ -1,0 +1,43 @@
+@startuml
+title Student Scheduling RPC/report request sequence
+
+skinparam sequenceMessageAlign center
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #3D405B
+skinparam ParticipantBorderColor #3D405B
+skinparam ParticipantBackgroundColor #F7F7F2
+
+actor User
+participant "GWT page\n(gwt.client.sectioning)" as Client
+participant "Servlet filters\nweb.xml" as Filters
+participant "GwtDispatcherServlet\nor GwtRpcServlet" as RPC
+participant "SectioningServlet\nor SectioningReportsBackend" as Backend
+participant "SessionContext\nPermissionCheck" as Security
+participant "OnlineSectioningServer" as Online
+participant "StudentSolverProxy" as Solver
+database "Hibernate DAO + DB" as DB
+
+User -> Client : choose courses / run sectioning report
+Client -> Filters : HTTP RPC request
+Filters -> Security : authenticate, authorize, open Hibernate session
+Filters -> RPC : dispatch *.gwt or /unitime/gwt.rpc
+RPC -> Backend : invoke service method or execute(request)
+Backend -> Security : check Right.StudentScheduling* / SchedulingReports
+
+alt online sectioning path
+  Backend -> Online : createAction(...) and execute(action, user)
+  Online -> DB : load/update students, requests, enrollments
+  Online --> Backend : CourseRequestInterface / ClassAssignmentInterface / CSV
+else batch solver/report path
+  Backend -> Solver : getReport(parameters)
+  Solver -> DB : read solver/session data as needed
+  Solver --> Backend : CSV report
+end
+
+Backend --> RPC : DTO / GwtRpcResponse
+RPC --> Filters : encoded RPC response
+Filters --> Client : response
+Client --> User : updated schedule, validation, or report grid
+
+@enduml
